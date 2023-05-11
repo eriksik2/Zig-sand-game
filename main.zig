@@ -165,6 +165,7 @@ pub fn main() !void {
     var game = try Game.init(&allocator);
     defer game.deinit(&allocator);
 
+    var paused = false;
     var lmouseDown = false;
     var rmouseDown = false;
     var mouseX: c_int = 0;
@@ -197,8 +198,9 @@ pub fn main() !void {
                 .key_up => |kb| {
                     switch (kb.keycode) {
                         .escape => break :mainLoop,
+                        .space => paused = !paused,
                         .z => spawnCell = @intToEnum(Cell, @mod(@enumToInt(spawnCell) + 1, @typeInfo(Cell).Enum.fields.len)),
-                        .x => spawnCell = @intToEnum(Cell, @mod(@enumToInt(spawnCell) - 1, @typeInfo(Cell).Enum.fields.len)),
+                        .x => spawnCell = @intToEnum(Cell, @mod((@intCast(i32, @enumToInt(spawnCell)) - 1), @intCast(i32, @typeInfo(Cell).Enum.fields.len))),
                         else => {},
                     }
                     try out.print("{s}\n", .{@tagName(spawnCell)});
@@ -223,7 +225,7 @@ pub fn main() !void {
             game.level.setCell(mouseCellX, mouseCellY, .Empty);
         }
 
-        game.tick();
+        if (!paused) game.tick();
 
         try renderer.setColorRGB(0xF7, 0xA4, 0x1D);
         try renderer.clear();
