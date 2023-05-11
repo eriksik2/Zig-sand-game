@@ -1,6 +1,8 @@
 const std = @import("std");
 const RndGen = std.rand.DefaultPrng;
 
+const sdl = @import("sdl2");
+
 const Level = @import("Level.zig");
 const LevelUpdater = @import("LevelUpdater.zig");
 
@@ -140,6 +142,40 @@ fn printLevel(level: *Level) !void {
 
 pub fn main() !void {
     var allocator = std.heap.page_allocator;
+
+    try sdl.init(.{
+        .video = true,
+        .events = true,
+        .audio = true,
+    });
+    defer sdl.quit();
+
+    var window = try sdl.createWindow(
+        "SDL2 Wrapper Demo",
+        .{ .centered = {} },
+        .{ .centered = {} },
+        640,
+        480,
+        .{ .vis = .shown },
+    );
+    defer window.destroy();
+
+    var renderer = try sdl.createRenderer(window, null, .{ .accelerated = true });
+    defer renderer.destroy();
+
+    mainLoop: while (true) {
+        while (sdl.pollEvent()) |ev| {
+            switch (ev) {
+                .quit => break :mainLoop,
+                else => {},
+            }
+        }
+
+        try renderer.setColorRGB(0xF7, 0xA4, 0x1D);
+        try renderer.clear();
+
+        renderer.present();
+    }
 
     var level = try Level.init(&allocator, 20, 10);
     defer level.deinit(&allocator);
