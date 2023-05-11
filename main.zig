@@ -5,10 +5,8 @@ const sdl = @import("sdl2");
 
 const Level = @import("Level.zig");
 const LevelUpdater = @import("LevelUpdater.zig");
-
-const Game = struct {
-    level: Level,
-};
+const Game = @import("Game.zig");
+const Cell = @import("cell.zig").Cell;
 
 var rnd = RndGen.init(0);
 
@@ -141,6 +139,7 @@ fn printLevel(level: *Level) !void {
 }
 
 pub fn main() !void {
+    var out = std.io.getStdOut().writer();
     var allocator = std.heap.page_allocator;
 
     try sdl.init(.{
@@ -163,32 +162,89 @@ pub fn main() !void {
     var renderer = try sdl.createRenderer(window, null, .{ .accelerated = true });
     defer renderer.destroy();
 
+    var game = try Game.init(&allocator);
+    defer game.deinit(&allocator);
+
+    var lmouseDown = false;
+    var rmouseDown = false;
+    var mouseX: c_int = 0;
+    var mouseY: c_int = 0;
+    var spawnCell: Cell = .Sand;
     mainLoop: while (true) {
         while (sdl.pollEvent()) |ev| {
             switch (ev) {
                 .quit => break :mainLoop,
+                .mouse_button_down => |mb| {
+                    switch (mb.button) {
+                        .left => lmouseDown = true,
+                        .right => rmouseDown = true,
+                        else => {},
+                    }
+                    mouseX = mb.x;
+                    mouseY = mb.y;
+                },
+                .mouse_button_up => |mb| {
+                    switch (mb.button) {
+                        .left => lmouseDown = false,
+                        .right => rmouseDown = false,
+                        else => {},
+                    }
+                },
+                .mouse_motion => |mm| {
+                    mouseX = mm.x;
+                    mouseY = mm.y;
+                },
+                .key_up => |kb| {
+                    switch (kb.keycode) {
+                        .escape => break :mainLoop,
+                        .z => spawnCell = @intToEnum(Cell, @mod(@enumToInt(spawnCell) + 1, @typeInfo(Cell).Enum.fields.len)),
+                        .x => spawnCell = @intToEnum(Cell, @mod(@enumToInt(spawnCell) - 1, @typeInfo(Cell).Enum.fields.len)),
+                        else => {},
+                    }
+                    try out.print("{s}\n", .{@tagName(spawnCell)});
+                },
                 else => {},
             }
         }
 
+        var x: i32 = @intCast(i32, mouseX);
+        var y: i32 = @intCast(i32, mouseY);
+        const renderSize = try renderer.getOutputSize();
+        const squareWidth = @divTrunc(renderSize.width_pixels, @intCast(c_int, game.level.width));
+        const squareHeight = @divTrunc(renderSize.height_pixels, @intCast(c_int, game.level.height));
+
+        var mouseCellX = @divTrunc(x, squareWidth);
+        var mouseCellY = @divTrunc(y, squareHeight);
+
+        if (lmouseDown) {
+            game.level.setCell(mouseCellX, mouseCellY, spawnCell);
+        }
+        if (rmouseDown) {
+            game.level.setCell(mouseCellX, mouseCellY, .Empty);
+        }
+
+        game.tick();
+
         try renderer.setColorRGB(0xF7, 0xA4, 0x1D);
         try renderer.clear();
 
+        try game.render(&renderer);
+
         renderer.present();
-    }
-
-    var level = try Level.init(&allocator, 20, 10);
-    defer level.deinit(&allocator);
-
-    var t: i32 = 0;
-    while (true) {
-        if (t <= 50) {
-            level.setCell(19, 0, .Water);
-            level.setCell(0, 0, .Sand);
-        }
-        try printLevel(level);
-        try updateLevel(&allocator, level);
         std.time.sleep(10 * std.time.ns_per_ms);
-        t += 1;
     }
+
+    //var level = try Level.init(&allocator, 20, 10);
+    //defer level.deinit(&allocator);
+    //var t: i32 = 0;
+    //while (true) {
+    //    if (t <= 50) {
+    //        level.setCell(19, 0, .Water);
+    //        level.setCell(0, 0, .Sand);
+    //    }
+    //    try printLevel(level);
+    //    try updateLevel(&allocator, level);
+    //    std.time.sleep(10 * std.time.ns_per_ms);
+    //    t += 1;
+    //}
 }

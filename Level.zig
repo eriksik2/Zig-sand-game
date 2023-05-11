@@ -56,7 +56,7 @@ pub fn getCell(self: *const Level, x: i32, y: i32) Cell {
 
 pub fn setCell(self: *Level, x: i32, y: i32, cell: Cell) void {
     if (x < 0 or y < 0 or x >= self.width or y >= self.height) {
-        unreachable;
+        return;
     }
     self.cells.items[self.getIndex(@intCast(u32, x), @intCast(u32, y))] = cell;
 }
