@@ -225,7 +225,7 @@ pub fn main() !void {
             game.level.setCell(mouseCellX, mouseCellY, .Empty);
         }
 
-        if (!paused) game.tick();
+        if (!paused) try game.tick(&allocator);
 
         try renderer.setColorRGB(0xF7, 0xA4, 0x1D);
         try renderer.clear();

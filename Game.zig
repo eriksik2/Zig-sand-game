@@ -4,11 +4,13 @@ const RndGen = std.rand.DefaultPrng;
 const sdl = @import("sdl2");
 
 const Level = @import("Level.zig");
+const LevelUpdater = @import("LevelUpdater.zig");
 
 const Game = @This();
 
 level: *Level,
-rnd: RndGen,
+rndGen: RndGen,
+rnd: std.rand.Random,
 
 pub fn init(allocator: *std.mem.Allocator) !*Game {
     var game: *Game = try allocator.create(Game);
@@ -17,7 +19,8 @@ pub fn init(allocator: *std.mem.Allocator) !*Game {
     game.level = try Level.init(allocator, 128, 128);
     errdefer game.level.deinit(allocator);
 
-    game.rnd = RndGen.init(0);
+    game.rndGen = RndGen.init(0);
+    game.rnd = game.rndGen.random();
 
     return game;
 }
@@ -27,8 +30,11 @@ pub fn deinit(game: *Game, allocator: *std.mem.Allocator) void {
     allocator.destroy(game);
 }
 
-pub fn tick(game: *Game) void {
-    var oddness = game.rnd.random().boolean();
+pub fn tick(game: *Game, allocator: *std.mem.Allocator) !void {
+    var updater = try LevelUpdater.init(allocator, game.level);
+    defer updater.deinit(allocator);
+
+    var oddness = game.rnd.boolean();
     var y: i32 = @intCast(i32, game.level.height) - 1;
     while (y >= 0) : (y -= 1) {
         var i: i32 = 0;
@@ -41,8 +47,9 @@ pub fn tick(game: *Game) void {
             if (oddness) {
                 x = @mod(x + 1, @intCast(i32, game.level.width));
             }
+            if (updater.getDidWrite(x, y)) continue;
             var cell = game.level.getCell(x, y);
-            cell.update(x, y, game);
+            cell.update(x, y, game, updater);
         }
     }
 }
@@ -75,6 +82,9 @@ pub fn render(game: *Game, renderer: *sdl.Renderer) !void {
             },
             .Water => {
                 try renderer.setColor(sdl.Color{ .r = 0, .g = 0, .b = 255, .a = 255 });
+            },
+            .Steam => {
+                try renderer.setColor(sdl.Color{ .r = 128, .g = 128, .b = 128, .a = 255 });
             },
         }
 
