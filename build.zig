@@ -11,7 +11,7 @@ pub fn build(b: *std.Build.Builder) !void {
     // Create executable for our example
     const demo_basic = b.addExecutable(.{
         .name = "zig-falling-sand",
-        .root_source_file = .{ .path = "main.zig" },
+        .root_source_file = .{ .path = "src/main.zig" },
         .target = target,
         //.link_libc = true,
     });

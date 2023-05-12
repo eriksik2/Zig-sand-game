@@ -170,7 +170,9 @@ pub fn main() !void {
     var rmouseDown = false;
     var mouseX: c_int = 0;
     var mouseY: c_int = 0;
-    var spawnCell: Cell = .Sand;
+    var spawnCell: Cell = .{
+        .Sand = .{},
+    };
     mainLoop: while (true) {
         while (sdl.pollEvent()) |ev| {
             switch (ev) {
@@ -199,8 +201,8 @@ pub fn main() !void {
                     switch (kb.keycode) {
                         .escape => break :mainLoop,
                         .space => paused = !paused,
-                        .z => spawnCell = @intToEnum(Cell, @mod(@enumToInt(spawnCell) + 1, @typeInfo(Cell).Enum.fields.len)),
-                        .x => spawnCell = @intToEnum(Cell, @mod((@intCast(i32, @enumToInt(spawnCell)) - 1), @intCast(i32, @typeInfo(Cell).Enum.fields.len))),
+                        //.z => spawnCell = @intToEnum(Cell, @mod(@enumToInt(spawnCell) + 1, @typeInfo(Cell).Enum.fields.len)),
+                        //.x => spawnCell = @intToEnum(Cell, @mod((@intCast(i32, @enumToInt(spawnCell)) - 1), @intCast(i32, @typeInfo(Cell).Enum.fields.len))),
                         else => {},
                     }
                     try out.print("{s}\n", .{@tagName(spawnCell)});
