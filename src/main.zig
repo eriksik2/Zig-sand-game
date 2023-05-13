@@ -41,7 +41,7 @@ pub fn main() !void {
     var mouseX: c_int = 0;
     var mouseY: c_int = 0;
     var spawnCell: Cell = .{
-        .Steam = .{},
+        .Water = .{},
     };
     mainLoop: while (true) {
         while (sdl.pollEvent()) |ev| {
@@ -71,6 +71,8 @@ pub fn main() !void {
                     switch (kb.keycode) {
                         .escape => break :mainLoop,
                         .space => paused = !paused,
+                        .@"1" => game.setRenderMode(.Cells),
+                        .@"2" => game.setRenderMode(.Temp),
                         //.z => spawnCell = @intToEnum(Cell, @mod(@enumToInt(spawnCell) + 1, @typeInfo(Cell).Enum.fields.len)),
                         //.x => spawnCell = @intToEnum(Cell, @mod((@intCast(i32, @enumToInt(spawnCell)) - 1), @intCast(i32, @typeInfo(Cell).Enum.fields.len))),
                         else => {},
@@ -91,10 +93,16 @@ pub fn main() !void {
         var mouseCellY = @divTrunc(y, squareHeight);
 
         if (lmouseDown) {
-            game.level.setCell(mouseCellX, mouseCellY, spawnCell);
+            if (game.renderMode == .Temp) {
+                const temp = game.level.getTemp(mouseCellX, mouseCellY);
+                game.level.setTemp(mouseCellX, mouseCellY, temp + 500.0);
+            } else game.level.setCell(mouseCellX, mouseCellY, spawnCell);
         }
         if (rmouseDown) {
-            game.level.setCell(mouseCellX, mouseCellY, .Empty);
+            if (game.renderMode == .Temp) {
+                const temp = game.level.getTemp(mouseCellX, mouseCellY);
+                game.level.setTemp(mouseCellX, mouseCellY, temp - 500.0);
+            } else game.level.setCell(mouseCellX, mouseCellY, .Empty);
         }
 
         if (!paused) try game.tick(&allocator);

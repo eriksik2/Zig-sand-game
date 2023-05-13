@@ -28,6 +28,10 @@ pub fn getDidWrite(self: *const LevelUpdater, x: i32, y: i32) bool {
     return self.didWrite[@intCast(u32, x) + @intCast(u32, y) * self.level.width];
 }
 
+pub fn getTemp(self: *const LevelUpdater, x: i32, y: i32) f32 {
+    return self.level.getTemp(x, y);
+}
+
 pub fn getCell(self: *const LevelUpdater, x: i32, y: i32) Cell {
     return self.level.getCell(x, y);
 }

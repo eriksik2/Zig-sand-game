@@ -8,9 +8,16 @@ const LevelUpdater = @import("LevelUpdater.zig");
 
 const Game = @This();
 
+const RenderMode = enum {
+    Cells,
+    Temp,
+};
+
 level: *Level,
 rndGen: RndGen,
 rnd: std.rand.Random,
+
+renderMode: RenderMode,
 
 pub fn init(allocator: *std.mem.Allocator) !*Game {
     var game: *Game = try allocator.create(Game);
@@ -22,12 +29,18 @@ pub fn init(allocator: *std.mem.Allocator) !*Game {
     game.rndGen = RndGen.init(0);
     game.rnd = game.rndGen.random();
 
+    game.renderMode = .Cells;
+
     return game;
 }
 
 pub fn deinit(game: *Game, allocator: *std.mem.Allocator) void {
     game.level.deinit(allocator);
     allocator.destroy(game);
+}
+
+pub fn setRenderMode(game: *Game, mode: RenderMode) void {
+    game.renderMode = mode;
 }
 
 pub fn tick(game: *Game, allocator: *std.mem.Allocator) !void {
@@ -50,6 +63,28 @@ pub fn tick(game: *Game, allocator: *std.mem.Allocator) !void {
             if (updater.getDidWrite(x, y)) continue;
             var cell = game.level.getCell(x, y);
             cell.update(x, y, game, updater);
+
+            // Temp update
+            const temp = game.level.getTemp(x, y);
+            const disipateTemp = temp * 0.3;
+            game.level.setTemp(x, y, temp - disipateTemp);
+            const Pos = struct { dx: i32, dy: i32 };
+            const check: [8]Pos = .{
+                .{ .dx = -1, .dy = 0 },
+                .{ .dx = 1, .dy = 0 },
+                .{ .dx = 0, .dy = -1 },
+                .{ .dx = 0, .dy = 1 },
+                .{ .dx = -1, .dy = -1 },
+                .{ .dx = 1, .dy = -1 },
+                .{ .dx = -1, .dy = 1 },
+                .{ .dx = 1, .dy = 1 },
+            };
+            for (check) |square| {
+                const sx = x + square.dx;
+                const sy = y + square.dy;
+                const sTemp = game.level.getTemp(sx, sy);
+                game.level.setTemp(sx, sy, sTemp + disipateTemp / 8);
+            }
         }
     }
 }
@@ -59,7 +94,7 @@ pub fn render(game: *Game, renderer: *sdl.Renderer) !void {
     const squareWidth = @divTrunc(renderSize.width_pixels, @intCast(c_int, game.level.width));
     const squareHeight = @divTrunc(renderSize.height_pixels, @intCast(c_int, game.level.height));
 
-    for (game.level.cells, 0..) |cell, i| {
+    for (0..game.level.cells.len) |i| {
         const x = @mod(@intCast(c_int, i), @intCast(c_int, game.level.width));
         const y = @divTrunc(@intCast(c_int, i), @intCast(c_int, game.level.width));
 
@@ -70,24 +105,51 @@ pub fn render(game: *Game, renderer: *sdl.Renderer) !void {
             .height = squareHeight,
         };
 
+        const cell = game.level.cells[i];
+        const temp = game.level.temp[i];
+
+        var finalColor = sdl.Color{ .r = 0, .g = 0, .b = 0, .a = 255 };
         switch (cell) {
             .Empty => {
-                try renderer.setColor(sdl.Color{ .r = 0, .g = 0, .b = 0, .a = 255 });
+                finalColor = sdl.Color{ .r = 0, .g = 0, .b = 0, .a = 255 };
             },
             .Wall => {
-                try renderer.setColor(sdl.Color{ .r = 255, .g = 255, .b = 255, .a = 255 });
+                finalColor = sdl.Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
             },
             .Sand => {
-                try renderer.setColor(sdl.Color{ .r = 255, .g = 255, .b = 0, .a = 255 });
+                finalColor = sdl.Color{ .r = 255, .g = 255, .b = 0, .a = 255 };
             },
             .Water => {
-                try renderer.setColor(sdl.Color{ .r = 0, .g = 0, .b = 255, .a = 255 });
+                finalColor = sdl.Color{ .r = 0, .g = 0, .b = 255, .a = 255 };
             },
             .Steam => {
-                try renderer.setColor(sdl.Color{ .r = 128, .g = 128, .b = 128, .a = 255 });
+                finalColor = sdl.Color{ .r = 128, .g = 128, .b = 128, .a = 255 };
             },
         }
 
+        if (game.renderMode == .Temp) {
+            const blueTemp = -100;
+            const redTemp = 100;
+            var t = (temp - blueTemp) / (redTemp - blueTemp);
+            if (t < 0) t = 0;
+            if (t > 1) t = 1;
+            const red = sdl.Color{ .r = 255, .g = 0, .b = 0, .a = 255 };
+            const blue = sdl.Color{ .r = 0, .g = 0, .b = 255, .a = 255 };
+            var tempColor = lerpColor(blue, red, t);
+            finalColor = lerpColor(tempColor, finalColor, 0.5);
+        }
+
+        try renderer.setColor(finalColor);
+
         try renderer.fillRect(rect);
     }
+}
+
+fn lerpColor(a: sdl.Color, b: sdl.Color, t: f32) sdl.Color {
+    return sdl.Color{
+        .r = @intCast(u8, @floatToInt(u8, @intToFloat(f32, a.r) * (1.0 - t) + @intToFloat(f32, b.r) * t)),
+        .g = @intCast(u8, @floatToInt(u8, @intToFloat(f32, a.g) * (1.0 - t) + @intToFloat(f32, b.g) * t)),
+        .b = @intCast(u8, @floatToInt(u8, @intToFloat(f32, a.b) * (1.0 - t) + @intToFloat(f32, b.b) * t)),
+        .a = @intCast(u8, @floatToInt(u8, @intToFloat(f32, a.a) * (1.0 - t) + @intToFloat(f32, b.a) * t)),
+    };
 }
