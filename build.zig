@@ -4,6 +4,9 @@ const Sdk = @import("SDL.zig/Sdk.zig"); // Import the Sdk at build time
 pub fn build(b: *std.Build.Builder) !void {
     // Determine compilation target
     const target = b.standardTargetOptions(.{});
+    const mode = b.standardOptimizeOption(.{
+        .preferred_optimize_mode = .Debug,
+    });
 
     // Create a new instance of the SDL2 Sdk
     const sdk = Sdk.init(b, null);
@@ -13,6 +16,7 @@ pub fn build(b: *std.Build.Builder) !void {
         .name = "zig-falling-sand",
         .root_source_file = .{ .path = "src/main.zig" },
         .target = target,
+        .optimize = mode,
         //.link_libc = true,
     });
 

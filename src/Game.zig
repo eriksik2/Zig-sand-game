@@ -16,6 +16,7 @@ const RenderMode = enum {
 level: *Level,
 rndGen: RndGen,
 rnd: std.rand.Random,
+tickCount: u64,
 
 renderMode: RenderMode,
 
@@ -23,12 +24,13 @@ pub fn init(allocator: *std.mem.Allocator) !*Game {
     var game: *Game = try allocator.create(Game);
     errdefer allocator.destroy(game);
 
-    game.level = try Level.init(allocator, 128, 128);
+    game.level = try Level.init(allocator, 64, 64);
     errdefer game.level.deinit(allocator);
 
     game.rndGen = RndGen.init(0);
     game.rnd = game.rndGen.random();
 
+    game.tickCount = 0;
     game.renderMode = .Cells;
 
     return game;
@@ -62,8 +64,11 @@ pub fn tick(game: *Game, allocator: *std.mem.Allocator) !void {
             }
             if (updater.getDidWrite(x, y)) continue;
             var cell = game.level.getCell(x, y);
-            cell.update(x, y, game, updater);
-            cell = game.level.getCell(x, y);
+
+            if (@mod(game.tickCount, 2) == 0) {
+                cell.update(x, y, game, updater);
+                cell = game.level.getCell(x, y);
+            }
 
             // Temp update
             const temp = cell.temp;
@@ -88,6 +93,7 @@ pub fn tick(game: *Game, allocator: *std.mem.Allocator) !void {
             }
         }
     }
+    game.tickCount +%= 1;
 }
 
 pub fn render(game: *Game, renderer: *sdl.Renderer) !void {

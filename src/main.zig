@@ -121,14 +121,14 @@ pub fn main() !void {
         if (lmouseDown) {
             if (game.renderMode == .Temp) {
                 const temp = game.level.getCell(mouseCellX, mouseCellY).temp;
-                game.level.setTemp(mouseCellX, mouseCellY, temp + 500.0);
-            } else game.level.setCellType(mouseCellX, mouseCellY, spawnCell);
+                game.level.setTemp(mouseCellX, mouseCellY, temp + 50.0);
+            } else setCellsBrush(game.level, mouseCellX, mouseCellY, spawnCell);
         }
         if (rmouseDown) {
             if (game.renderMode == .Temp) {
                 const temp = game.level.getCell(mouseCellX, mouseCellY).temp;
-                game.level.setTemp(mouseCellX, mouseCellY, temp - 500.0);
-            } else game.level.setCellType(mouseCellX, mouseCellY, .Empty);
+                game.level.setTemp(mouseCellX, mouseCellY, temp - 50.0);
+            } else setCellsBrush(game.level, mouseCellX, mouseCellY, .Empty);
         }
 
         if (!paused) try game.tick(&allocator);
@@ -139,6 +139,18 @@ pub fn main() !void {
         try game.render(&renderer);
 
         renderer.present();
-        std.time.sleep(10 * std.time.ns_per_ms);
+        //std.time.sleep(10 * std.time.ns_per_ms);
+    }
+}
+
+fn setCellsBrush(level: *Level, x: i32, y: i32, cell: Cell.CellType) void {
+    const brushSize = 4;
+    const hb = @divTrunc(brushSize, 2);
+    var ix = x - hb;
+    while (ix < x + hb) : (ix += 1) {
+        var iy = y - hb;
+        while (iy < y + hb) : (iy += 1) {
+            level.setCellType(ix, iy, cell);
+        }
     }
 }

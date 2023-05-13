@@ -10,7 +10,7 @@ const Steam = @This();
 
 pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) void {
     var rnd = game.rnd;
-    const thresh = levelUtils.invLerpVar(self.temp, 50.0, 50.0);
+    const thresh = levelUtils.invLerpVar(self.temp, 90.0, 50.0);
     if (rnd.float(f32) > thresh) {
         level.setCellType(x, y, .Water);
         return;
