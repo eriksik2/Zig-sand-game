@@ -34,7 +34,7 @@ pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) voi
     rnd.shuffle(Pos, &check1);
     for (check1) |c| {
         var cell = level.getCell(x + c.dx, y + c.dy);
-        if (cell.type == .Empty) {
+        if (cell.type == .Empty or cell.type == .Smoke) {
             level.setCell(x, y, cell);
             level.setCell(x + c.dx, y + c.dy, self2);
             return;
