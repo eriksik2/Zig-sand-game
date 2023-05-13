@@ -13,6 +13,7 @@ git clone https://github.com/MasterQ32/SDL.zig.git
 
 ### Add/remove mode
  - Mouse left: Add selected material
+ - Mouse right: Remove material
  - w: Select water
  - s: Select sand
  - a: Select wall
