@@ -6,25 +6,14 @@ const Cell = @import("../Cell.zig");
 
 const levelUtils = @import("../levelUtils.zig");
 
-const Ember = @This();
-
-burn: f32 = 1.0,
+const Smoke = @This();
 
 pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) void {
     var rnd = game.rnd;
-
-    var self2 = self;
-    self2.type.Ember.burn -= rnd.float(f32) / 10;
-    self2.temp = 300.0;
-    level.setCell(x, y, self2);
-
-    if (self.type.Ember.burn <= 0.0) {
-        level.setCellType(x, y, .{
-            .Smoke = .{},
-        });
+    if (rnd.float(f32) < 0.02) {
+        level.setCellType(x, y, .Empty);
         return;
     }
-
     const Pos = struct { dx: i32, dy: i32 };
     var check1: [3]Pos = .{
         .{ .dx = -1, .dy = -1 },
@@ -36,7 +25,23 @@ pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) voi
         var cell = level.getCell(x + c.dx, y + c.dy);
         if (cell.type == .Empty) {
             level.setCell(x, y, cell);
-            level.setCell(x + c.dx, y + c.dy, self2);
+            level.setCell(x + c.dx, y + c.dy, self);
+            return;
+        }
+    }
+    var check2: [5]Pos = .{
+        .{ .dx = -1, .dy = 0 },
+        .{ .dx = 1, .dy = 0 },
+        .{ .dx = -1, .dy = 1 },
+        .{ .dx = 0, .dy = 1 },
+        .{ .dx = 1, .dy = 1 },
+    };
+    rnd.shuffle(Pos, &check2);
+    for (check2) |c| {
+        var cell = level.getCell(x + c.dx, y + c.dy);
+        if (cell.type == .Empty) {
+            level.setCell(x, y, cell);
+            level.setCell(x + c.dx, y + c.dy, self);
             return;
         }
     }

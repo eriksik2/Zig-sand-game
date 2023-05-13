@@ -147,21 +147,24 @@ pub fn render(game: *Game, renderer: *sdl.Renderer) !void {
             .Fire => {
                 finalColor = sdl.Color{ .r = 255, .g = 128, .b = 0, .a = 255 };
             },
+            .Smoke => {
+                finalColor = sdl.Color{ .r = 28, .g = 28, .b = 28, .a = 255 };
+            },
             .Wood => {
                 finalColor = sdl.Color{ .r = 133, .g = 58, .b = 24, .a = 255 };
             },
         }
 
         // Temp color
-        const blueTemp = -100;
-        const redTemp = 100;
+        const blueTemp = -500;
+        const redTemp = 500;
         var t = (temp - blueTemp) / (redTemp - blueTemp);
         if (t < 0) t = 0;
         if (t > 1) t = 1;
         const red = sdl.Color{ .r = 255, .g = 0, .b = 0, .a = 255 };
         const blue = sdl.Color{ .r = 0, .g = 0, .b = 255, .a = 255 };
         var tempColor = lerpColor(blue, red, t);
-        finalColor = lerpColor(tempColor, finalColor, 0.5);
+        finalColor = lerpColor(tempColor, finalColor, 0.8);
 
         try renderer.setColor(finalColor);
 
