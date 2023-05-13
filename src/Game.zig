@@ -59,7 +59,7 @@ pub fn render(game: *Game, renderer: *sdl.Renderer) !void {
     const squareWidth = @divTrunc(renderSize.width_pixels, @intCast(c_int, game.level.width));
     const squareHeight = @divTrunc(renderSize.height_pixels, @intCast(c_int, game.level.height));
 
-    for (game.level.cells.items, 0..) |cell, i| {
+    for (game.level.cells, 0..) |cell, i| {
         const x = @mod(@intCast(c_int, i), @intCast(c_int, game.level.width));
         const y = @divTrunc(@intCast(c_int, i), @intCast(c_int, game.level.width));
 

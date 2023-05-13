@@ -5,7 +5,7 @@ const Level = @This();
 
 width: u32,
 height: u32,
-cells: std.ArrayList(Cell),
+cells: []Cell,
 
 pub fn init(allocator: *std.mem.Allocator, width: u32, height: u32) !*Level {
     var self: *Level = try allocator.create(Level);
@@ -14,23 +14,16 @@ pub fn init(allocator: *std.mem.Allocator, width: u32, height: u32) !*Level {
     self.width = width;
     self.height = height;
 
-    self.cells = std.ArrayList(Cell).init(allocator.*);
-    errdefer self.cells.deinit();
+    self.cells = try allocator.alloc(Cell, width * height);
+    errdefer allocator.free(self.cells);
 
-    try self.cells.resize(self.width * self.height);
-    @memset(self.cells.items, .Empty);
+    @memset(self.cells, .Empty);
     return self;
 }
 
 pub fn deinit(self: *Level, allocator: *std.mem.Allocator) void {
-    self.cells.deinit();
+    allocator.free(self.cells);
     allocator.destroy(self);
-}
-
-pub fn clone(self: *Level, allocator: *std.mem.Allocator) !*Level {
-    var cl: *Level = try Level.init(allocator, self.width, self.height);
-    @memcpy(cl.cells.items, self.cells.items);
-    return cl;
 }
 
 fn getIndex(self: *const Level, x: u32, y: u32) u64 {
@@ -51,14 +44,14 @@ pub fn getCell(self: *const Level, x: i32, y: i32) Cell {
     if (x < 0 or y < 0 or x >= self.width or y >= self.height) {
         return Cell.Wall;
     }
-    return self.cells.items[self.getIndex(@intCast(u32, x), @intCast(u32, y))];
+    return self.cells[self.getIndex(@intCast(u32, x), @intCast(u32, y))];
 }
 
 pub fn setCell(self: *Level, x: i32, y: i32, cell: anytype) void {
     if (x < 0 or y < 0 or x >= self.width or y >= self.height) {
         return;
     }
-    self.cells.items[self.getIndex(@intCast(u32, x), @intCast(u32, y))] = makeCell(cell);
+    self.cells[self.getIndex(@intCast(u32, x), @intCast(u32, y))] = makeCell(cell);
 }
 
 pub fn makeCell(data: anytype) Cell {
