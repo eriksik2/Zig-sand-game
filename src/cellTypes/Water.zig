@@ -2,15 +2,16 @@ const std = @import("std");
 
 const Game = @import("../Game.zig");
 const LevelUpdater = @import("../LevelUpdater.zig");
+const levelUtils = @import("../levelUtils.zig");
 
 const Water = @This();
 
 pub fn update(self: Water, x: i32, y: i32, game: *Game, level: *LevelUpdater) void {
-    if (level.getTemp(x, y) > 99) {
+    var rnd = game.rnd;
+    if (rnd.float(f32) < levelUtils.invLerpVar(level.getTemp(x, y), 100, 50)) {
         level.setCell(x, y, .Steam);
         return;
     }
-    var rnd = game.rnd;
     var below = level.getCell(x, y + 1);
     if (below == .Empty) {
         level.setCell(x, y, below);

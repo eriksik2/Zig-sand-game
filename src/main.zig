@@ -23,8 +23,8 @@ pub fn main() !void {
         "SDL2 Wrapper Demo",
         .{ .centered = {} },
         .{ .centered = {} },
-        640,
-        480,
+        640 * 2,
+        480 * 2,
         .{ .vis = .shown },
     );
     defer window.destroy();
@@ -34,6 +34,13 @@ pub fn main() !void {
 
     var game = try Game.init(&allocator);
     defer game.deinit(&allocator);
+
+    const levelUtils = @import("levelUtils.zig");
+    try out.print("{}\n", .{levelUtils.invLerpVar(50, 100, 50)});
+    try out.print("{}\n", .{levelUtils.invLerpVar(60, 100, 50)});
+    try out.print("{}\n", .{levelUtils.invLerpVar(100, 100, 50)});
+    try out.print("{}\n", .{levelUtils.invLerpVar(140, 100, 50)});
+    try out.print("{}\n", .{levelUtils.invLerpVar(150, 100, 50)});
 
     var paused = false;
     var lmouseDown = false;

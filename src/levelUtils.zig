@@ -33,3 +33,25 @@ pub fn countNeigborsOf(level: anytype, x: u32, y: u32, cell: CellTag) u32 {
     }
     return count;
 }
+
+pub fn invLerpVar(value: anytype, mean: @TypeOf(value), variance: @TypeOf(value)) f32 {
+    var cvalue: f32 = 0;
+    var cmean: f32 = 0;
+    var cvariance: f32 = 0;
+    switch (@typeInfo(@TypeOf(value))) {
+        .ComptimeFloat, .Float => {
+            cvalue = @floatCast(f32, value);
+            cmean = @floatCast(f32, mean);
+            cvariance = @floatCast(f32, variance);
+        },
+        .ComptimeInt, .Int => {
+            cvalue = @intToFloat(f32, value);
+            cmean = @intToFloat(f32, mean);
+            cvariance = @intToFloat(f32, variance);
+        },
+        else => @compileError("Expected float or int, got " ++ @typeName(@TypeOf(value))),
+    }
+    const a = cvalue - (cmean - cvariance);
+    const b = a / (2 * cvariance);
+    return b;
+}

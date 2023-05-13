@@ -3,14 +3,17 @@ const std = @import("std");
 const Game = @import("../Game.zig");
 const LevelUpdater = @import("../LevelUpdater.zig");
 
+const levelUtils = @import("../levelUtils.zig");
+
 const Steam = @This();
 
 pub fn update(self: Steam, x: i32, y: i32, game: *Game, level: *LevelUpdater) void {
-    if (level.getTemp(x, y) <= 10) {
+    var rnd = game.rnd;
+    const thresh = levelUtils.invLerpVar(level.getTemp(x, y), 50.0, 50.0);
+    if (rnd.float(f32) > thresh) {
         level.setCell(x, y, .Water);
         return;
     }
-    var rnd = game.rnd;
     const Pos = struct { dx: i32, dy: i32 };
     var check1: [3]Pos = .{
         .{ .dx = -1, .dy = -1 },
