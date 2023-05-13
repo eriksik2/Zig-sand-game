@@ -32,7 +32,7 @@ pub fn getCell(self: *const LevelUpdater, x: i32, y: i32) Cell {
     return self.level.getCell(x, y);
 }
 
-pub fn setCell(self: *LevelUpdater, x: i32, y: i32, cell: Cell) void {
+pub fn setCell(self: *LevelUpdater, x: i32, y: i32, cell: anytype) void {
     self.level.setCell(x, y, cell);
     self.didWrite[@intCast(u32, x) + @intCast(u32, y) * self.level.width] = true;
 }
