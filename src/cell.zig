@@ -8,6 +8,8 @@ pub const Cell = union(enum) {
     Wall: void,
     Water: @import("cellTypes/Water.zig"),
     Steam: @import("cellTypes/Steam.zig"),
+    HeatGenerator: @import("cellTypes/HeatGenerator.zig"),
+    ColdGenerator: @import("cellTypes/ColdGenerator.zig"),
 
     pub fn update(cell: Cell, x: i32, y: i32, game: *Game, updater: *LevelUpdater) void {
         const typeInfo = @typeInfo(Cell).Union;

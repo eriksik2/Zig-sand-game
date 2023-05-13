@@ -117,27 +117,32 @@ pub fn render(game: *Game, renderer: *sdl.Renderer) !void {
                 finalColor = sdl.Color{ .r = 255, .g = 255, .b = 255, .a = 255 };
             },
             .Sand => {
-                finalColor = sdl.Color{ .r = 255, .g = 255, .b = 0, .a = 255 };
+                finalColor = sdl.Color{ .r = 255, .g = 255, .b = 48, .a = 255 };
             },
             .Water => {
-                finalColor = sdl.Color{ .r = 0, .g = 0, .b = 255, .a = 255 };
+                finalColor = sdl.Color{ .r = 48, .g = 48, .b = 255, .a = 255 };
             },
             .Steam => {
                 finalColor = sdl.Color{ .r = 128, .g = 128, .b = 128, .a = 255 };
             },
+            .HeatGenerator => {
+                finalColor = sdl.Color{ .r = 255, .g = 0, .b = 0, .a = 255 };
+            },
+            .ColdGenerator => {
+                finalColor = sdl.Color{ .r = 0, .g = 0, .b = 255, .a = 255 };
+            },
         }
 
-        if (game.renderMode == .Temp) {
-            const blueTemp = -100;
-            const redTemp = 100;
-            var t = (temp - blueTemp) / (redTemp - blueTemp);
-            if (t < 0) t = 0;
-            if (t > 1) t = 1;
-            const red = sdl.Color{ .r = 255, .g = 0, .b = 0, .a = 255 };
-            const blue = sdl.Color{ .r = 0, .g = 0, .b = 255, .a = 255 };
-            var tempColor = lerpColor(blue, red, t);
-            finalColor = lerpColor(tempColor, finalColor, 0.5);
-        }
+        // Temp color
+        const blueTemp = -100;
+        const redTemp = 100;
+        var t = (temp - blueTemp) / (redTemp - blueTemp);
+        if (t < 0) t = 0;
+        if (t > 1) t = 1;
+        const red = sdl.Color{ .r = 255, .g = 0, .b = 0, .a = 255 };
+        const blue = sdl.Color{ .r = 0, .g = 0, .b = 255, .a = 255 };
+        var tempColor = lerpColor(blue, red, t);
+        finalColor = lerpColor(tempColor, finalColor, 0.5);
 
         try renderer.setColor(finalColor);
 

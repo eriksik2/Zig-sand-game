@@ -6,7 +6,7 @@ const LevelUpdater = @import("../LevelUpdater.zig");
 const Water = @This();
 
 pub fn update(self: Water, x: i32, y: i32, game: *Game, level: *LevelUpdater) void {
-    if (level.getTemp(x, y) >= 100) {
+    if (level.getTemp(x, y) > 99) {
         level.setCell(x, y, .Steam);
         return;
     }

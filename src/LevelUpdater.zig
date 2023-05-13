@@ -32,6 +32,10 @@ pub fn getTemp(self: *const LevelUpdater, x: i32, y: i32) f32 {
     return self.level.getTemp(x, y);
 }
 
+pub fn setTemp(self: *LevelUpdater, x: i32, y: i32, temp: f32) void {
+    self.level.setTemp(x, y, temp);
+}
+
 pub fn getCell(self: *const LevelUpdater, x: i32, y: i32) Cell {
     return self.level.getCell(x, y);
 }

@@ -41,7 +41,7 @@ pub fn main() !void {
     var mouseX: c_int = 0;
     var mouseY: c_int = 0;
     var spawnCell: Cell = .{
-        .Water = .{},
+        .Sand = .{},
     };
     mainLoop: while (true) {
         while (sdl.pollEvent()) |ev| {
@@ -73,11 +73,30 @@ pub fn main() !void {
                         .space => paused = !paused,
                         .@"1" => game.setRenderMode(.Cells),
                         .@"2" => game.setRenderMode(.Temp),
+                        .w => {
+                            spawnCell = .Water;
+                            try out.print("{s}\n", .{@tagName(spawnCell)});
+                        },
+                        .s => {
+                            spawnCell = .Sand;
+                            try out.print("{s}\n", .{@tagName(spawnCell)});
+                        },
+                        .a => {
+                            spawnCell = .Wall;
+                            try out.print("{s}\n", .{@tagName(spawnCell)});
+                        },
+                        .h => {
+                            spawnCell = .HeatGenerator;
+                            try out.print("{s}\n", .{@tagName(spawnCell)});
+                        },
+                        .c => {
+                            spawnCell = .ColdGenerator;
+                            try out.print("{s}\n", .{@tagName(spawnCell)});
+                        },
                         //.z => spawnCell = @intToEnum(Cell, @mod(@enumToInt(spawnCell) + 1, @typeInfo(Cell).Enum.fields.len)),
                         //.x => spawnCell = @intToEnum(Cell, @mod((@intCast(i32, @enumToInt(spawnCell)) - 1), @intCast(i32, @typeInfo(Cell).Enum.fields.len))),
                         else => {},
                     }
-                    try out.print("{s}\n", .{@tagName(spawnCell)});
                 },
                 else => {},
             }
