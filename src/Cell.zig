@@ -12,6 +12,9 @@ pub const CellType = union(enum) {
     Steam: @import("cellTypes/Steam.zig"),
     HeatGenerator: @import("cellTypes/HeatGenerator.zig"),
     ColdGenerator: @import("cellTypes/ColdGenerator.zig"),
+    Ember: @import("cellTypes/Ember.zig"),
+    Fire: @import("cellTypes/Fire.zig"),
+    Wood: @import("cellTypes/Wood.zig"),
 };
 
 temp: f32,

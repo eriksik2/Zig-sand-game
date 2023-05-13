@@ -35,13 +35,6 @@ pub fn main() !void {
     var game = try Game.init(&allocator);
     defer game.deinit(&allocator);
 
-    const levelUtils = @import("levelUtils.zig");
-    try out.print("{}\n", .{levelUtils.invLerpVar(50, 100, 50)});
-    try out.print("{}\n", .{levelUtils.invLerpVar(60, 100, 50)});
-    try out.print("{}\n", .{levelUtils.invLerpVar(100, 100, 50)});
-    try out.print("{}\n", .{levelUtils.invLerpVar(140, 100, 50)});
-    try out.print("{}\n", .{levelUtils.invLerpVar(150, 100, 50)});
-
     var paused = false;
     var lmouseDown = false;
     var rmouseDown = false;
@@ -100,8 +93,14 @@ pub fn main() !void {
                             spawnCell = .ColdGenerator;
                             try out.print("{s}\n", .{@tagName(spawnCell)});
                         },
-                        //.z => spawnCell = @intToEnum(Cell, @mod(@enumToInt(spawnCell) + 1, @typeInfo(Cell).Enum.fields.len)),
-                        //.x => spawnCell = @intToEnum(Cell, @mod((@intCast(i32, @enumToInt(spawnCell)) - 1), @intCast(i32, @typeInfo(Cell).Enum.fields.len))),
+                        .f => {
+                            spawnCell = .{ .Fire = .{} };
+                            try out.print("{s}\n", .{@tagName(spawnCell)});
+                        },
+                        .d => {
+                            spawnCell = .{ .Wood = .{} };
+                            try out.print("{s}\n", .{@tagName(spawnCell)});
+                        },
                         else => {},
                     }
                 },

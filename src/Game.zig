@@ -24,7 +24,7 @@ pub fn init(allocator: *std.mem.Allocator) !*Game {
     var game: *Game = try allocator.create(Game);
     errdefer allocator.destroy(game);
 
-    game.level = try Level.init(allocator, 64, 64);
+    game.level = try Level.init(allocator, 128, 128);
     errdefer game.level.deinit(allocator);
 
     game.rndGen = RndGen.init(0);
@@ -137,6 +137,18 @@ pub fn render(game: *Game, renderer: *sdl.Renderer) !void {
             },
             .ColdGenerator => {
                 finalColor = sdl.Color{ .r = 0, .g = 0, .b = 255, .a = 255 };
+            },
+            .Ember => |ember| {
+                var burn = ember.burn;
+                if (burn > 1) burn = 1;
+                if (burn < 0) burn = 0;
+                finalColor = sdl.Color{ .r = @floatToInt(u8, 228 * burn), .g = @floatToInt(u8, 128 * burn), .b = 0, .a = 255 };
+            },
+            .Fire => {
+                finalColor = sdl.Color{ .r = 255, .g = 128, .b = 0, .a = 255 };
+            },
+            .Wood => {
+                finalColor = sdl.Color{ .r = 133, .g = 58, .b = 24, .a = 255 };
             },
         }
 
