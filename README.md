@@ -15,7 +15,6 @@ git clone https://github.com/MasterQ32/SDL.zig.git
  - Mouse left: Add selected material
  - Mouse right: Remove material
  - w: Select water
- - v: Select steam
  - s: Select sand
  - a: Select wall
  - f: Select fire

@@ -77,10 +77,6 @@ pub fn main() !void {
                             spawnCell = .Water;
                             try out.print("{s}\n", .{@tagName(spawnCell)});
                         },
-                        .v => {
-                            spawnCell = .Steam;
-                            try out.print("{s}\n", .{@tagName(spawnCell)});
-                        },
                         .s => {
                             spawnCell = .Sand;
                             try out.print("{s}\n", .{@tagName(spawnCell)});
