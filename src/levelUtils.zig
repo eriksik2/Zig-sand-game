@@ -1,6 +1,6 @@
 const Game = @import("Game.zig");
 const Level = @import("Level.zig");
-const Cell = @import("cell.zig").Cell;
+const Cell = @import("Cell.zig");
 const LevelUpdater = @import("LevelUpdater.zig");
 
 const CellTag = @typeInfo(Cell).Union.tag_type.?;

@@ -63,9 +63,10 @@ pub fn tick(game: *Game, allocator: *std.mem.Allocator) !void {
             if (updater.getDidWrite(x, y)) continue;
             var cell = game.level.getCell(x, y);
             cell.update(x, y, game, updater);
+            cell = game.level.getCell(x, y);
 
             // Temp update
-            const temp = game.level.getTemp(x, y);
+            const temp = cell.temp;
             const disipateTemp = temp * 0.3;
             game.level.setTemp(x, y, temp - disipateTemp);
             const Pos = struct { dx: i32, dy: i32 };
@@ -82,7 +83,7 @@ pub fn tick(game: *Game, allocator: *std.mem.Allocator) !void {
             for (check) |square| {
                 const sx = x + square.dx;
                 const sy = y + square.dy;
-                const sTemp = game.level.getTemp(sx, sy);
+                const sTemp = game.level.getCell(sx, sy).temp;
                 game.level.setTemp(sx, sy, sTemp + disipateTemp / 8);
             }
         }
@@ -106,10 +107,10 @@ pub fn render(game: *Game, renderer: *sdl.Renderer) !void {
         };
 
         const cell = game.level.cells[i];
-        const temp = game.level.temp[i];
+        const temp = cell.temp;
 
         var finalColor = sdl.Color{ .r = 0, .g = 0, .b = 0, .a = 255 };
-        switch (cell) {
+        switch (cell.type) {
             .Empty => {
                 finalColor = sdl.Color{ .r = 0, .g = 0, .b = 0, .a = 255 };
             },

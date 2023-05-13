@@ -2,16 +2,17 @@ const std = @import("std");
 
 const Game = @import("../Game.zig");
 const LevelUpdater = @import("../LevelUpdater.zig");
+const Cell = @import("../Cell.zig");
 
 const levelUtils = @import("../levelUtils.zig");
 
 const Steam = @This();
 
-pub fn update(self: Steam, x: i32, y: i32, game: *Game, level: *LevelUpdater) void {
+pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) void {
     var rnd = game.rnd;
-    const thresh = levelUtils.invLerpVar(level.getTemp(x, y), 50.0, 50.0);
+    const thresh = levelUtils.invLerpVar(self.temp, 50.0, 50.0);
     if (rnd.float(f32) > thresh) {
-        level.setCell(x, y, .Water);
+        level.setCellType(x, y, .Water);
         return;
     }
     const Pos = struct { dx: i32, dy: i32 };
@@ -23,7 +24,7 @@ pub fn update(self: Steam, x: i32, y: i32, game: *Game, level: *LevelUpdater) vo
     rnd.shuffle(Pos, &check1);
     for (check1) |c| {
         var cell = level.getCell(x + c.dx, y + c.dy);
-        if (cell == .Empty or cell == .Water) {
+        if (cell.type == .Empty or cell.type == .Water) {
             level.setCell(x, y, cell);
             level.setCell(x + c.dx, y + c.dy, self);
             return;
@@ -39,7 +40,7 @@ pub fn update(self: Steam, x: i32, y: i32, game: *Game, level: *LevelUpdater) vo
     rnd.shuffle(Pos, &check2);
     for (check2) |c| {
         var cell = level.getCell(x + c.dx, y + c.dy);
-        if (cell == .Empty) {
+        if (cell.type == .Empty) {
             level.setCell(x, y, cell);
             level.setCell(x + c.dx, y + c.dy, self);
             return;

@@ -6,7 +6,7 @@ const sdl = @import("sdl2");
 const Level = @import("Level.zig");
 const LevelUpdater = @import("LevelUpdater.zig");
 const Game = @import("Game.zig");
-const Cell = @import("cell.zig").Cell;
+const Cell = @import("Cell.zig");
 
 pub fn main() !void {
     var out = std.io.getStdOut().writer();
@@ -47,7 +47,7 @@ pub fn main() !void {
     var rmouseDown = false;
     var mouseX: c_int = 0;
     var mouseY: c_int = 0;
-    var spawnCell: Cell = .{
+    var spawnCell: Cell.CellType = .{
         .Sand = .{},
     };
     mainLoop: while (true) {
@@ -120,15 +120,15 @@ pub fn main() !void {
 
         if (lmouseDown) {
             if (game.renderMode == .Temp) {
-                const temp = game.level.getTemp(mouseCellX, mouseCellY);
+                const temp = game.level.getCell(mouseCellX, mouseCellY).temp;
                 game.level.setTemp(mouseCellX, mouseCellY, temp + 500.0);
-            } else game.level.setCell(mouseCellX, mouseCellY, spawnCell);
+            } else game.level.setCellType(mouseCellX, mouseCellY, spawnCell);
         }
         if (rmouseDown) {
             if (game.renderMode == .Temp) {
-                const temp = game.level.getTemp(mouseCellX, mouseCellY);
+                const temp = game.level.getCell(mouseCellX, mouseCellY).temp;
                 game.level.setTemp(mouseCellX, mouseCellY, temp - 500.0);
-            } else game.level.setCell(mouseCellX, mouseCellY, .Empty);
+            } else game.level.setCellType(mouseCellX, mouseCellY, .Empty);
         }
 
         if (!paused) try game.tick(&allocator);

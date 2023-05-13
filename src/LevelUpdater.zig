@@ -1,6 +1,6 @@
 const std = @import("std");
 const Level = @import("Level.zig");
-const Cell = @import("cell.zig").Cell;
+const Cell = @import("Cell.zig");
 
 const LevelUpdater = @This();
 
@@ -34,13 +34,19 @@ pub fn getTemp(self: *const LevelUpdater, x: i32, y: i32) f32 {
 
 pub fn setTemp(self: *LevelUpdater, x: i32, y: i32, temp: f32) void {
     self.level.setTemp(x, y, temp);
+    self.didWrite[@intCast(u32, x) + @intCast(u32, y) * self.level.width] = true;
 }
 
 pub fn getCell(self: *const LevelUpdater, x: i32, y: i32) Cell {
     return self.level.getCell(x, y);
 }
 
-pub fn setCell(self: *LevelUpdater, x: i32, y: i32, cell: anytype) void {
+pub fn setCell(self: *LevelUpdater, x: i32, y: i32, cell: Cell) void {
     self.level.setCell(x, y, cell);
+    self.didWrite[@intCast(u32, x) + @intCast(u32, y) * self.level.width] = true;
+}
+
+pub fn setCellType(self: *LevelUpdater, x: i32, y: i32, cell: Cell.CellType) void {
+    self.level.setCellType(x, y, cell);
     self.didWrite[@intCast(u32, x) + @intCast(u32, y) * self.level.width] = true;
 }

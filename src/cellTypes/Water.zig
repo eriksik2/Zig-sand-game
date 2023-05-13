@@ -3,17 +3,18 @@ const std = @import("std");
 const Game = @import("../Game.zig");
 const LevelUpdater = @import("../LevelUpdater.zig");
 const levelUtils = @import("../levelUtils.zig");
+const Cell = @import("../Cell.zig");
 
 const Water = @This();
 
-pub fn update(self: Water, x: i32, y: i32, game: *Game, level: *LevelUpdater) void {
+pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) void {
     var rnd = game.rnd;
-    if (rnd.float(f32) < levelUtils.invLerpVar(level.getTemp(x, y), 100, 50)) {
-        level.setCell(x, y, .Steam);
+    if (rnd.float(f32) < levelUtils.invLerpVar(self.temp, 100, 50)) {
+        level.setCellType(x, y, .Steam);
         return;
     }
     var below = level.getCell(x, y + 1);
-    if (below == .Empty) {
+    if (below.type == .Empty) {
         level.setCell(x, y, below);
         level.setCell(x, y + 1, self);
         return;
@@ -25,25 +26,25 @@ pub fn update(self: Water, x: i32, y: i32, game: *Game, level: *LevelUpdater) vo
         second = -1;
     }
     var cellFirst = level.getCell(x + first, y + 1);
-    if (cellFirst == .Empty) {
+    if (cellFirst.type == .Empty) {
         level.setCell(x, y, cellFirst);
         level.setCell(x + first, y + 1, self);
         return;
     }
     var cellSecond = level.getCell(x + second, y + 1);
-    if (cellSecond == .Empty) {
+    if (cellSecond.type == .Empty) {
         level.setCell(x, y, cellSecond);
         level.setCell(x + second, y + 1, self);
         return;
     }
     cellFirst = level.getCell(x + first, y);
-    if (cellFirst == .Empty or cellFirst == .Sand) {
+    if (cellFirst.type == .Empty or cellFirst.type == .Sand) {
         level.setCell(x, y, cellFirst);
         level.setCell(x + first, y, self);
         return;
     }
     cellSecond = level.getCell(x + second, y);
-    if (cellSecond == .Empty or cellSecond == .Sand) {
+    if (cellSecond.type == .Empty or cellSecond.type == .Sand) {
         level.setCell(x, y, cellSecond);
         level.setCell(x + second, y, self);
         return;
