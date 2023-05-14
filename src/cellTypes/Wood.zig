@@ -6,7 +6,12 @@ const Cell = @import("../Cell.zig");
 
 const Wood = @This();
 
-pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) void {
+pub const materialProps: Cell.MaterialProps = .{
+    .state = .Solid,
+    .density = 100.0,
+};
+
+pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) bool {
     _ = self;
     var rnd = game.rnd;
 
@@ -29,8 +34,9 @@ pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) voi
                 } else {
                     level.setCellType(x, y, .Empty);
                 }
-                return;
+                return true;
             }
         }
     }
+    return false;
 }

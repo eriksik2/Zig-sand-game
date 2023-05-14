@@ -65,10 +65,10 @@ pub fn tick(game: *Game, allocator: *std.mem.Allocator) !void {
             if (updater.getDidWrite(x, y)) continue;
             var cell = game.level.getCell(x, y);
 
-            if (@mod(game.tickCount, 2) == 0) {
-                cell.update(x, y, game, updater);
-                cell = game.level.getCell(x, y);
-            }
+            //if (@mod(game.tickCount, 2) == 0) {
+            cell.update(x, y, game, updater);
+            cell = game.level.getCell(x, y);
+            //}
 
             // Temp update
             const temp = cell.temp;

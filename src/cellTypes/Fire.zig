@@ -8,11 +8,16 @@ const levelUtils = @import("../levelUtils.zig");
 
 const Ember = @This();
 
-pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) void {
+pub const materialProps: Cell.MaterialProps = .{
+    .state = .Solid,
+    .density = 10.0,
+};
+
+pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) bool {
     var rnd = game.rnd;
     if (rnd.float(f32) < 0.01) {
         level.setCellType(x, y, .Empty);
-        return;
+        return true;
     }
 
     const Pos = struct { dx: i32, dy: i32 };
@@ -27,7 +32,7 @@ pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) voi
         var cell = level.getCell(x + c.dx, y + c.dy);
         if (cell.type == .Water) {
             level.setCellType(x, y, .Empty);
-            return;
+            return true;
         }
         if (cell.type == .Empty) {
             level.setCellType(x + c.dx, y + c.dy, .{
@@ -47,7 +52,8 @@ pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) voi
         if (cell.type == .Empty or cell.type == .Ember) {
             level.setCell(x, y, cell);
             level.setCell(x + c.dx, y + c.dy, self);
-            return;
+            return true;
         }
     }
+    return false;
 }

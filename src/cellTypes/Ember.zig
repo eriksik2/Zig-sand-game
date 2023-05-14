@@ -10,7 +10,12 @@ const Ember = @This();
 
 burn: f32 = 1.0,
 
-pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) void {
+pub const materialProps: Cell.MaterialProps = .{
+    .state = .None,
+    .density = -100.0,
+};
+
+pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) bool {
     var rnd = game.rnd;
 
     var self2 = self;
@@ -22,7 +27,7 @@ pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) voi
         level.setCellType(x, y, .{
             .Smoke = .{},
         });
-        return;
+        return true;
     }
 
     const Pos = struct { dx: i32, dy: i32 };
@@ -37,7 +42,8 @@ pub fn update(self: Cell, x: i32, y: i32, game: *Game, level: *LevelUpdater) voi
         if (cell.type == .Empty or cell.type == .Smoke) {
             level.setCell(x, y, cell);
             level.setCell(x + c.dx, y + c.dy, self2);
-            return;
+            return true;
         }
     }
+    return false;
 }
