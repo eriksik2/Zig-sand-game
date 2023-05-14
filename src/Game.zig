@@ -163,8 +163,9 @@ pub fn render(game: *Game, renderer: *sdl.Renderer) !void {
         if (t > 1) t = 1;
         const red = sdl.Color{ .r = 255, .g = 0, .b = 0, .a = 255 };
         const blue = sdl.Color{ .r = 0, .g = 0, .b = 255, .a = 255 };
-        var tempColor = lerpColor(blue, red, t);
-        finalColor = lerpColor(tempColor, finalColor, 0.8);
+        const black = sdl.Color{ .r = 0, .g = 0, .b = 0, .a = 255 };
+        var tempColor = lerpColor3(blue, black, red, t);
+        finalColor = lerpColor(tempColor, finalColor, 0.5);
 
         try renderer.setColor(finalColor);
 
@@ -179,4 +180,14 @@ fn lerpColor(a: sdl.Color, b: sdl.Color, t: f32) sdl.Color {
         .b = @intCast(u8, @floatToInt(u8, @intToFloat(f32, a.b) * (1.0 - t) + @intToFloat(f32, b.b) * t)),
         .a = @intCast(u8, @floatToInt(u8, @intToFloat(f32, a.a) * (1.0 - t) + @intToFloat(f32, b.a) * t)),
     };
+}
+
+fn lerpColor3(a: sdl.Color, b: sdl.Color, c: sdl.Color, t: f32) sdl.Color {
+    const t1 = t * 2.0;
+    const t2 = (t - 0.5) * 2.0;
+    if (t < 0.5) {
+        return lerpColor(a, b, t1);
+    } else {
+        return lerpColor(b, c, t2);
+    }
 }
